@@ -1,3 +1,9 @@
+# Jango Player
+
+![Jango Player](playing.png)
+
+This is still a work in progress..
+
 ## Expo - creating custom development client
 
 ---
