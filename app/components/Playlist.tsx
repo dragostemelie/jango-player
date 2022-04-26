@@ -36,7 +36,7 @@ export default function Playlist() {
     for (let index = 0; index < 10; index++) {
       const nextSong = await getPlaylistSong(player.playlistId);
       const songExists =
-        songs.some((song) => song.song_id === nextSong?.song_id) &&
+        songs.some((song) => song.song_id === nextSong?.song_id) ||
         playlist.some((song) => song.song_id === nextSong?.song_id);
       if (nextSong && !songExists) {
         const { album, artist, album_art, station, song, song_id, url } =
