@@ -3,8 +3,9 @@ import { FlatList, ViewToken } from "react-native";
 
 import { getPlaylistSong } from "api/jango";
 import { playSong } from "store/playerSlice";
-import { selectPlayer, selectPlaylist } from "store/store";
+import { selectFavorites, selectPlayer, selectPlaylist } from "store/store";
 import { Song } from "types";
+import { toggleFavorite } from "store/favoritesSlice";
 import { updatePlaylist } from "store/playlistsSlice";
 import { useAppDispatch, useAppSelector } from "store/hooks";
 import LoadMore from "components/LoadMores";
@@ -15,7 +16,11 @@ export default function Playlist() {
   const [loading, setLoading] = useState(false);
 
   const player = useAppSelector(selectPlayer);
-  const playlist = useAppSelector(selectPlaylist);
+  const playlist =
+    player.playlistId === 100
+      ? useAppSelector(selectFavorites)
+      : useAppSelector(selectPlaylist);
+  const favorites = useAppSelector(selectFavorites);
   const dispatch = useAppDispatch();
 
   const flatList = useRef<FlatList>(null);
@@ -68,7 +73,9 @@ export default function Playlist() {
       })}
       keyExtractor={(_, index) => index.toString()}
       ListFooterComponent={
-        <LoadMore onPress={handleLoadMore} loading={loading} />
+        player.playlistId !== 100 ? (
+          <LoadMore onPress={handleLoadMore} loading={loading} />
+        ) : undefined
       }
       onViewableItemsChanged={onViewRef.current}
       ref={flatList}
@@ -77,7 +84,9 @@ export default function Playlist() {
           image={item.album_art}
           title={item.song}
           subtitle={item.artist}
+          isFavorite={favorites.some((song) => song.song_id === item.song_id)}
           isSelected={index === player.currentSong}
+          onToggleFavorite={() => dispatch(toggleFavorite(item))}
           onSelect={() => dispatch(playSong(index))}
         />
       )}

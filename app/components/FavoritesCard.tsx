@@ -13,27 +13,22 @@ import { colors } from "config/styles";
 interface IPlaylistCard {
   isSelected?: boolean;
   onSelect?: (event: GestureResponderEvent) => void;
-  title: string;
 }
 
-export default function PlaylistCard({
-  isSelected,
-  onSelect,
-  title,
-}: IPlaylistCard) {
+export default function FavoritesCard({ isSelected, onSelect }: IPlaylistCard) {
   return (
     <TouchableNativeFeedback onPress={onSelect}>
       <View style={[styles.container, isSelected && styles.selected]}>
         <View style={styles.contextWrapper}>
           <View style={styles.image}>
             <MaterialCommunityIcons
-              name="playlist-music"
+              name="heart"
               color={colors.accentYellow}
-              size={36}
+              size={32}
             />
           </View>
           <View style={styles.textWrapper}>
-            <AppText style={styles.text}>{title}</AppText>
+            <AppText style={styles.text}>My favorite songs</AppText>
           </View>
           <View style={styles.chevronWrapper}>
             <MaterialCommunityIcons
@@ -54,7 +49,8 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: "center",
-    borderBottomWidth: 1,
+    backgroundColor: colors.activeBlack,
+    borderTopWidth: 1,
     borderColor: colors.selectedGrey,
     flexDirection: "row",
     height: 90,
@@ -79,6 +75,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.selectedGrey,
   },
   text: {
+    color: colors.distinctYellow,
     fontSize: 18,
   },
   textWrapper: {

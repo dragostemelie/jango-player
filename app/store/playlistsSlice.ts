@@ -3,11 +3,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { PlaylistItem, Song } from "types";
 
 const initialPlaylistState: PlaylistItem[] = [
-  { id: 399063352, name: "Top Pop Hits", playlist: [] },
-  { id: 276755202, name: "Fresh Finds", playlist: [] },
-  { id: 378000581, name: "R\u0026B Hits", playlist: [] },
-  { id: 263448190, name: "Hot Country", playlist: [] },
-  { id: 361346219, name: "Today's Top 100", playlist: [] },
+  { id: 263448187, name: "Today's Top 100", playlist: [] },
+  { id: 400389939, name: "Hot Rock Hits", playlist: [] },
+  { id: 168397373, name: "Best of 2010's", playlist: [] },
+  { id: 113283831, name: "Hits from the 80s", playlist: [] },
+  { id: 202741503, name: "Top Pop Hits", playlist: [] },
+  { id: 267466353, name: "Party Pop", playlist: [] },
+  { id: 113262396, name: "Hits from the 2000's", playlist: [] },
+  { id: 113275818, name: "Pop Rock of The 90's", playlist: [] },
 ];
 
 const playlistSlice = createSlice({
@@ -25,12 +28,14 @@ const playlistSlice = createSlice({
         ...state[playlistIndex].playlist,
         ...action.payload.songs,
       ];
+      return state;
     },
     clearPlaylist: (state, action: PayloadAction<{ id: number }>) => {
       const playlistIndex = state.findIndex(
         (playlist) => playlist.id === action.payload.id
       );
       state[playlistIndex].playlist = [];
+      return state;
     },
   },
 });

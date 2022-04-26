@@ -18,10 +18,16 @@ const playerSlice = createSlice({
     setPlaylist: (state, action: PayloadAction<PlaylistItem>) => {
       state.playlistId = action.payload.id;
       state.playlist = action.payload.name;
+      return state;
+    },
+    setFavorites: (state) => {
+      state.playlistId = 100;
+      state.playlist = "My favorite songs";
+      return state;
     },
   },
 });
 
-export const { playSong, setPlaylist } = playerSlice.actions;
+export const { playSong, setFavorites, setPlaylist } = playerSlice.actions;
 
 export default playerSlice.reducer;

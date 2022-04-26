@@ -12,14 +12,17 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import AppText from "./Text";
 import { colors } from "config/styles";
 import { playSong } from "store/playerSlice";
-import { selectPlayer, selectPlaylist } from "store/store";
+import { selectFavorites, selectPlayer, selectPlaylist } from "store/store";
 import { useAppDispatch, useAppSelector } from "store/hooks";
 
 export default function Player() {
   const [isPlaying, setIsPlaying] = useState(true);
 
   const player = useAppSelector(selectPlayer);
-  const playlist = useAppSelector(selectPlaylist);
+  const playlist =
+    player.playlistId === 100
+      ? useAppSelector(selectFavorites)
+      : useAppSelector(selectPlaylist);
   const dispatch = useAppDispatch();
   const { position, duration } = useProgress();
 
@@ -108,11 +111,28 @@ export default function Player() {
 
   const startPlayer = async () => {
     await initializePlayer();
-    await updatePlaylist();
+    if (player.playlistId === 100) {
+      await updatePlaylist();
+    } else {
+      await updateFavorites();
+    }
   };
 
   const stopPlayer = async () => {
     await TrackPlayer.destroy();
+    dispatch(playSong(-1));
+  };
+
+  const updateFavorites = async () => {
+    const songs = playlist.map((song) => ({
+      id: song.song_id,
+      url: "http:" + song.url,
+      title: song.song,
+      artist: song.artist,
+      artwork: song.album_art,
+    }));
+    await TrackPlayer.reset();
+    await TrackPlayer.add(songs, undefined);
     dispatch(playSong(-1));
   };
 
@@ -154,7 +174,11 @@ export default function Player() {
   }, [player.currentSong]);
 
   useEffect(() => {
-    updatePlaylist();
+    if (player.playlistId !== 100) {
+      updatePlaylist();
+    } else {
+      updateFavorites();
+    }
   }, [playlist]);
 
   return (

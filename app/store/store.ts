@@ -2,11 +2,13 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import player from "store/playerSlice";
 import playlists from "store/playlistsSlice";
+import favorites from "store/favoritesSlice";
 
 const store = configureStore({
   reducer: {
     player,
     playlists,
+    favorites,
   },
 });
 
@@ -24,6 +26,9 @@ export const selectPlaylist = (state: RootState) => {
 };
 export const selectPlaylists = (state: RootState) => {
   return state.playlists;
+};
+export const selectFavorites = (state: RootState) => {
+  return state.favorites;
 };
 
 export default store;
