@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "jango-player",
+    "name": "Jango Player",
     "slug": "jango-player",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,7 +8,7 @@
     "splash": {
       "image": "./app/assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1E2025"
+      "backgroundColor": "#0D3356"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -20,9 +20,9 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/adaptive-icon.png",
-        "backgroundColor": "#1E2025"
+        "backgroundColor": "#0D3356"
       },
-      "package": "com.yourcompany.yourappname",
+      "package": "com.dragostemelie.player",
       "versionCode": 1
     },
     "web": {

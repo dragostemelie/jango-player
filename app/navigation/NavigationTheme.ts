@@ -6,7 +6,7 @@ const theme = {
   colors: {
     ...DefaultTheme.colors,
     primary: colors.primary,
-    background: colors.activeBlack,
+    background: colors.darkBlack,
   },
 };
 
