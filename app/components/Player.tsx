@@ -3,17 +3,21 @@ import Slider from "@react-native-community/slider";
 import TrackPlayer, {
   Capability,
   Event,
-  State,
   useProgress,
 } from "react-native-track-player";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
-import AppText from "./Text";
 import { colors } from "config/styles";
 import { playSong } from "store/playerSlice";
-import { selectFavorites, selectPlayer, selectPlaylist } from "store/store";
+import { Song } from "types";
 import { useAppDispatch, useAppSelector } from "store/hooks";
+import AppText from "./Text";
+import store, {
+  selectFavorites,
+  selectPlayer,
+  selectPlaylist,
+} from "store/store";
 
 export default function Player() {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -36,29 +40,39 @@ export default function Player() {
     }
   };
 
-  const handlePrev = () => {
-    let nextSongIndex = player.currentSong;
-    if (player.currentSong > 0) nextSongIndex -= 1;
-    else nextSongIndex = player.playlist.length - 1;
-    if (nextSongIndex !== player.currentSong) {
-      dispatch(playSong(nextSongIndex));
+  const handlePrev = async () => {
+    if (player.currentSong > 0) {
+      dispatch(playSong(player.currentSong - 1));
     }
   };
 
-  const handleNext = () => {
-    let nextSongIndex = player.currentSong;
-    if (player.playlist.length - 1 > player.currentSong) nextSongIndex += 1;
-    else nextSongIndex = 0;
-    if (nextSongIndex !== player.currentSong) {
-      dispatch(playSong(nextSongIndex));
-    }
+  const handleNext = async () => {
+    if (player.currentSong < playlist.length - 1)
+      dispatch(playSong(player.currentSong + 1));
   };
 
   const handleSeek = (value: number) => {
     TrackPlayer.seekTo(value);
   };
 
-  const initializePlayer = async () => {
+  const handlePlaybackQueueEnded = () => {
+    const state = store.getState();
+    if (state.player.currentSong !== -1) {
+      const currentSong = state.player.currentSong;
+      const currentPlaylist = state.player.playlistId;
+      const playlist = state.playlists.find(
+        (list) => list.id === currentPlaylist
+      )?.playlist as Song[];
+
+      if (currentSong < playlist?.length - 1) {
+        dispatch(playSong(currentSong + 1));
+      } else {
+        dispatch(playSong(0));
+      }
+    }
+  };
+
+  const initPlayer = async () => {
     try {
       TrackPlayer.updateOptions({
         stopWithApp: true, // false=> music continues in background even when app is closed
@@ -81,15 +95,10 @@ export default function Player() {
       });
 
       await TrackPlayer.setupPlayer();
-      await TrackPlayer.reset();
 
       TrackPlayer.addEventListener(
-        Event.PlaybackTrackChanged,
-        (event: { track: number; nextTrack: number | undefined }) => {
-          if (event.nextTrack && event.nextTrack === event.track) {
-            dispatch(playSong(event.nextTrack));
-          }
-        }
+        Event.PlaybackQueueEnded,
+        handlePlaybackQueueEnded
       );
     } catch (e) {
       console.log(e);
@@ -97,57 +106,23 @@ export default function Player() {
     }
   };
 
-  const playNextSong = async () => {
-    const trackIndex = await TrackPlayer.getCurrentTrack();
-    if (player.currentSong !== trackIndex) {
-      await TrackPlayer.skip(player.currentSong);
-    }
-    const state = await TrackPlayer.getState();
-    if (state !== State.Playing) {
-      setIsPlaying(true);
-      TrackPlayer.play();
-    }
-  };
-
-  const startPlayer = async () => {
-    await initializePlayer();
-    if (player.playlistId === 100) {
-      await updatePlaylist();
-    } else {
-      await updateFavorites();
-    }
-  };
-
-  const stopPlayer = async () => {
+  const destroyPlayer = async () => {
     await TrackPlayer.destroy();
     dispatch(playSong(-1));
   };
 
-  const updateFavorites = async () => {
-    const songs = playlist.map((song) => ({
-      id: song.song_id,
-      url: "http:" + song.url,
-      title: song.song,
-      artist: song.artist,
-      artwork: song.album_art,
-    }));
-    await TrackPlayer.reset();
-    await TrackPlayer.add(songs, undefined);
-    dispatch(playSong(-1));
-  };
+  const playNextSong = async () => {
+    const nextSong = {
+      id: playlist[player.currentSong].song_id,
+      url: "http:" + playlist[player.currentSong].url,
+      title: playlist[player.currentSong].song,
+      artist: playlist[player.currentSong].artist,
+      artwork: playlist[player.currentSong].album_art,
+    };
 
-  const updatePlaylist = async () => {
-    const songsCount = (await TrackPlayer.getQueue()).length;
-    const songs = playlist
-      .slice(songsCount) //only add last songs from playlist
-      .map((song) => ({
-        id: song.song_id,
-        url: "http:" + song.url,
-        title: song.song,
-        artist: song.artist,
-        artwork: song.album_art,
-      }));
-    await TrackPlayer.add(songs, undefined);
+    await TrackPlayer.reset();
+    await TrackPlayer.add(nextSong);
+    await TrackPlayer.play();
   };
 
   const secondsToHHMMSS = (seconds: number | string) => {
@@ -163,23 +138,19 @@ export default function Player() {
   };
 
   useEffect(() => {
-    startPlayer();
+    initPlayer();
     return () => {
-      stopPlayer();
+      destroyPlayer();
     };
   }, []);
 
   useEffect(() => {
-    if (player.currentSong !== -1) playNextSong();
-  }, [player.currentSong]);
-
-  useEffect(() => {
-    if (player.playlistId !== 100) {
-      updatePlaylist();
+    if (player.currentSong !== -1) {
+      playNextSong();
     } else {
-      updateFavorites();
+      TrackPlayer.stop();
     }
-  }, [playlist]);
+  }, [player.currentSong]);
 
   return (
     <>

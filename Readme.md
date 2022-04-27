@@ -4,11 +4,10 @@ This is still a work in progress.
 
 To start the project on android:
 
-- install the `jango-player-development-env.apk` from build folder on your emulator
 - add globally `eas-cli`, `expo-cli`
+- install the `jango-player-development-env.apk` from build folder on your emulator
 - add `node_modules\` to the project
-- start with `yarn start`
-- when asked on your emulator how to open this project, select `Development Build`
+- start with `yarn dev`
 
 To run the app on android:
 

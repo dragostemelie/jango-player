@@ -48,6 +48,13 @@ export default function Playlist() {
     setLoading(false);
   };
 
+  const handleToggleFavorite = (item: Song, index: number) => {
+    if (player.playlistId === 100 && player.currentSong === index) {
+      dispatch(playSong(-1));
+    }
+    dispatch(toggleFavorite(item));
+  };
+
   //GET SONGS
   useEffect(() => {
     if (playlist.length === 0) handleLoadMore();
@@ -57,7 +64,7 @@ export default function Playlist() {
   useEffect(() => {
     if (player.currentSong > -1 && !songsInView.includes(player.currentSong)) {
       flatList.current?.scrollToIndex({
-        index: player.currentSong - 1,
+        index: Math.max(player.currentSong - 1, 0),
         animated: true,
       });
     }
@@ -86,7 +93,7 @@ export default function Playlist() {
           subtitle={item.artist}
           isFavorite={favorites.some((song) => song.song_id === item.song_id)}
           isSelected={index === player.currentSong}
-          onToggleFavorite={() => dispatch(toggleFavorite(item))}
+          onToggleFavorite={() => handleToggleFavorite(item, index)}
           onSelect={() => dispatch(playSong(index))}
         />
       )}
