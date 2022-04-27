@@ -4,6 +4,7 @@ import TrackPlayer, {
   Capability,
   Event,
   useProgress,
+  useTrackPlayerEvents,
 } from "react-native-track-player";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
@@ -19,6 +20,8 @@ import store, {
   selectPlaylist,
 } from "store/store";
 
+const events = [Event.PlaybackQueueEnded];
+
 export default function Player() {
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -29,6 +32,12 @@ export default function Player() {
       : useAppSelector(selectPlaylist);
   const dispatch = useAppDispatch();
   const { position, duration } = useProgress();
+
+  useTrackPlayerEvents(events, (event) => {
+    if (event.type === Event.PlaybackQueueEnded) {
+      handlePlaybackQueueEnded();
+    }
+  });
 
   const handlePlayPause = () => {
     if (isPlaying) {
@@ -95,11 +104,6 @@ export default function Player() {
       });
 
       await TrackPlayer.setupPlayer();
-
-      TrackPlayer.addEventListener(
-        Event.PlaybackQueueEnded,
-        handlePlaybackQueueEnded
-      );
     } catch (e) {
       console.log(e);
       // to-do handle error
