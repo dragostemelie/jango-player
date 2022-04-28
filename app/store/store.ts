@@ -49,12 +49,19 @@ export const selectPlayer = (state: RootState) => {
   return state.player;
 };
 export const selectPlaylist = (state: RootState) => {
+  if (state.player.currentPlaylistId === 100) return state.favorites;
   return (
     state.playlists.find((list) => list.id === state.player.currentPlaylistId)
       ?.playlist || []
   );
 };
 export const selectNextPlaylist = (state: RootState) => {
+  if (state.player.nextPlaylistId === 100)
+    return {
+      id: 100,
+      name: "My favorite songs",
+      playlist: state.favorites,
+    } as PlaylistItem;
   return state.playlists.find(
     (list) => list.id === state.player.nextPlaylistId
   ) as PlaylistItem;

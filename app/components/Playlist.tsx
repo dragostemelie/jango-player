@@ -2,7 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { FlatList, ViewToken } from "react-native";
 
 import { getPlaylistSong } from "api/jango";
-import { playSong, setCompact, setPlaylist } from "store/playerSlice";
+import {
+  playSong,
+  setCompact,
+  setFavorites,
+  setPlaylist,
+} from "store/playerSlice";
 import {
   selectFavorites,
   selectNextPlaylist,
@@ -55,7 +60,11 @@ export default function Playlist() {
   };
 
   const handleToggleFavorite = (item: Song, index: number) => {
-    if (player.currentPlaylistId === 100 && player.currentSong === index) {
+    if (
+      player.currentPlaylistId === 100 &&
+      player.nextPlaylistId === 100 &&
+      player.currentSong === index
+    ) {
       dispatch(playSong(-1));
     }
     dispatch(toggleFavorite(item));

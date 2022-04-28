@@ -42,10 +42,7 @@ export default function Player() {
   const navigation = useNavigation<NavigationProp>();
   const player = useAppSelector(selectPlayer);
   const favorites = useAppSelector(selectFavorites);
-  const playlist =
-    player.currentPlaylistId === 100
-      ? favorites
-      : useAppSelector(selectPlaylist);
+  const playlist = useAppSelector(selectPlaylist);
   const playlists = useAppSelector(selectPlaylists);
   const dispatch = useAppDispatch();
   const { position, duration } = useProgress();
@@ -87,10 +84,10 @@ export default function Player() {
     const state = store.getState();
     if (state.player.currentSong !== -1) {
       const currentSong = state.player.currentSong;
-      const currentPlaylist = state.player.currentPlaylistId;
-      const playlist = state.playlists.find(
-        (list) => list.id === currentPlaylist
-      )?.playlist as Song[];
+      const playlist =
+        player.currentPlaylistId === 100
+          ? useAppSelector(selectFavorites)
+          : useAppSelector(selectNextPlaylist).playlist;
 
       if (currentSong < playlist?.length - 1) {
         dispatch(playSong(currentSong + 1));
