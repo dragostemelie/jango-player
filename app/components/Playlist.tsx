@@ -2,8 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { FlatList, ViewToken } from "react-native";
 
 import { getPlaylistSong } from "api/jango";
-import { playSong } from "store/playerSlice";
-import { selectFavorites, selectPlayer, selectPlaylist } from "store/store";
+import { playSong, setCompact, setPlaylist } from "store/playerSlice";
+import {
+  selectFavorites,
+  selectNextPlaylist,
+  selectPlayer,
+  selectPlaylists,
+} from "store/store";
 import { Song } from "types";
 import { toggleFavorite } from "store/favoritesSlice";
 import { updatePlaylist } from "store/playlistsSlice";
@@ -17,10 +22,11 @@ export default function Playlist() {
 
   const player = useAppSelector(selectPlayer);
   const playlist =
-    player.playlistId === 100
+    player.nextPlaylistId === 100
       ? useAppSelector(selectFavorites)
-      : useAppSelector(selectPlaylist);
+      : useAppSelector(selectNextPlaylist).playlist;
   const favorites = useAppSelector(selectFavorites);
+  const nextPlaylist = useAppSelector(selectNextPlaylist);
   const dispatch = useAppDispatch();
 
   const flatList = useRef<FlatList>(null);
@@ -34,7 +40,7 @@ export default function Playlist() {
     setLoading(true);
     let songs: Song[] = [];
     for (let index = 0; index < 10; index++) {
-      const nextSong = await getPlaylistSong(player.playlistId);
+      const nextSong = await getPlaylistSong(player.nextPlaylistId);
       const songExists =
         songs.some((song) => song.song_id === nextSong?.song_id) ||
         playlist.some((song) => song.song_id === nextSong?.song_id);
@@ -44,29 +50,43 @@ export default function Playlist() {
         songs.push({ album, artist, album_art, station, song, song_id, url });
       }
     }
-    dispatch(updatePlaylist({ id: player.playlistId, songs }));
+    dispatch(updatePlaylist({ id: player.nextPlaylistId, songs }));
     setLoading(false);
   };
 
   const handleToggleFavorite = (item: Song, index: number) => {
-    if (player.playlistId === 100 && player.currentSong === index) {
+    if (player.currentPlaylistId === 100 && player.currentSong === index) {
       dispatch(playSong(-1));
     }
     dispatch(toggleFavorite(item));
   };
 
-  //GET SONGS
-  useEffect(() => {
-    if (playlist.length === 0) handleLoadMore();
-  }, [player.playlistId]);
-
-  //ON SONG CHANGE
-  useEffect(() => {
+  const handleScrollIntoView = () => {
     if (player.currentSong > -1 && !songsInView.includes(player.currentSong)) {
       flatList.current?.scrollToIndex({
         index: Math.max(player.currentSong - 1, 0),
         animated: true,
       });
+    }
+  };
+
+  const handleSelectSong = (index: number) => {
+    if (player.currentPlaylistId !== player.nextPlaylistId) {
+      dispatch(setPlaylist(nextPlaylist));
+      if (player.compact) dispatch(setCompact(false));
+    }
+    dispatch(playSong(index));
+  };
+
+  //GET SONGS
+  useEffect(() => {
+    if (playlist.length === 0) handleLoadMore();
+  }, [player.nextPlaylistId]);
+
+  //ON SONG CHANGE SCROLL TO IT
+  useEffect(() => {
+    if (player.currentPlaylistId === player.nextPlaylistId) {
+      handleScrollIntoView();
     }
   }, [player.currentSong]);
 
@@ -80,7 +100,7 @@ export default function Playlist() {
       })}
       keyExtractor={(_, index) => index.toString()}
       ListFooterComponent={
-        player.playlistId !== 100 ? (
+        player.nextPlaylistId !== 100 ? (
           <LoadMore onPress={handleLoadMore} loading={loading} />
         ) : undefined
       }
@@ -92,9 +112,12 @@ export default function Playlist() {
           title={item.song}
           subtitle={item.artist}
           isFavorite={favorites.some((song) => song.song_id === item.song_id)}
-          isSelected={index === player.currentSong}
+          isSelected={
+            index === player.currentSong &&
+            player.nextPlaylistId === player.currentPlaylistId
+          }
           onToggleFavorite={() => handleToggleFavorite(item, index)}
-          onSelect={() => dispatch(playSong(index))}
+          onSelect={() => handleSelectSong(index)}
         />
       )}
       viewabilityConfig={{ viewAreaCoveragePercentThreshold: 75 }}

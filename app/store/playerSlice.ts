@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { PlaylistItem, Song } from "types";
+import { PlaylistItem } from "types";
 
 const initialPlayerState = {
   currentSong: -1,
-  playlistId: 0,
-  playlist: "",
+  currentPlaylistId: 0,
+  nextPlaylistId: 0,
+  nextPlaylistName: "",
+  compact: false,
 };
 
 const playerSlice = createSlice({
@@ -14,20 +16,36 @@ const playerSlice = createSlice({
   reducers: {
     playSong: (state, action: PayloadAction<number>) => {
       state.currentSong = action.payload;
+      return state;
     },
     setPlaylist: (state, action: PayloadAction<PlaylistItem>) => {
-      state.playlistId = action.payload.id;
-      state.playlist = action.payload.name;
+      state.currentPlaylistId = action.payload.id;
+      state.nextPlaylistName = action.payload.name;
+      return state;
+    },
+    setNextPlaylist: (state, action: PayloadAction<PlaylistItem>) => {
+      state.nextPlaylistId = action.payload.id;
+      state.nextPlaylistName = action.payload.name;
+      return state;
+    },
+    setCompact: (state, action: PayloadAction<boolean>) => {
+      state.compact = action.payload;
       return state;
     },
     setFavorites: (state) => {
-      state.playlistId = 100;
-      state.playlist = "My favorite songs";
+      state.nextPlaylistId = 100;
+      state.nextPlaylistName = "My favorite songs";
       return state;
     },
   },
 });
 
-export const { playSong, setFavorites, setPlaylist } = playerSlice.actions;
+export const {
+  playSong,
+  setFavorites,
+  setCompact,
+  setPlaylist,
+  setNextPlaylist,
+} = playerSlice.actions;
 
 export default playerSlice.reducer;

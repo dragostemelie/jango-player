@@ -28,20 +28,22 @@ export default function PlaylistCard({
           <View style={styles.image}>
             <MaterialCommunityIcons
               name="playlist-music"
-              color={colors.accentYellow}
+              color={colors.secondary}
               size={36}
             />
           </View>
           <View style={styles.textWrapper}>
             <AppText style={styles.text}>{title}</AppText>
           </View>
-          <View style={styles.chevronWrapper}>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              color={colors.secondary}
-              size={36}
-            />
-          </View>
+          {isSelected && (
+            <View style={styles.chevronWrapper}>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                color={colors.secondary}
+                size={36}
+              />
+            </View>
+          )}
         </View>
       </View>
     </TouchableNativeFeedback>
@@ -57,7 +59,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: colors.selectedGrey,
     flexDirection: "row",
-    height: 90,
+    height: 80,
     paddingHorizontal: 20,
     width: "100%",
   },

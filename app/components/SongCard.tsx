@@ -4,6 +4,7 @@ import {
   Image,
   StyleSheet,
   TouchableNativeFeedback,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -58,7 +59,7 @@ export default function SongCard({
             <AppText>{title}</AppText>
             <AppText style={styles.subtitle}>{subtitle}</AppText>
           </View>
-          <TouchableNativeFeedback onPress={onToggleFavorite}>
+          <TouchableWithoutFeedback onPress={onToggleFavorite}>
             <View style={styles.heartWrapper}>
               <MaterialCommunityIcons
                 name={isFavorite ? "heart" : "heart-outline"}
@@ -66,7 +67,7 @@ export default function SongCard({
                 size={24}
               />
             </View>
-          </TouchableNativeFeedback>
+          </TouchableWithoutFeedback>
         </View>
       </TouchableNativeFeedback>
     </View>

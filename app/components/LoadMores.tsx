@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: colors.selectedGrey,
     flexDirection: "row",
-    height: 90,
+    height: 72,
     paddingHorizontal: 20,
     width: "100%",
   },
