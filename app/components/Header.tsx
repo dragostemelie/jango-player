@@ -3,7 +3,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   View,
   StyleSheet,
-  TouchableWithoutFeedback,
   GestureResponderEvent,
   TouchableOpacity,
 } from "react-native";

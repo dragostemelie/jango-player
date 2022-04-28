@@ -2,18 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { FlatList, ViewToken } from "react-native";
 
 import { getPlaylistSong } from "api/jango";
-import {
-  playSong,
-  setCompact,
-  setFavorites,
-  setPlaylist,
-} from "store/playerSlice";
-import {
-  selectFavorites,
-  selectNextPlaylist,
-  selectPlayer,
-  selectPlaylists,
-} from "store/store";
+import { playSong, setCompact, setPlaylist } from "store/playerSlice";
+import { selectFavorites, selectNextPlaylist, selectPlayer } from "store/store";
 import { Song } from "types";
 import { toggleFavorite } from "store/favoritesSlice";
 import { updatePlaylist } from "store/playlistsSlice";
@@ -43,7 +33,7 @@ export default function Playlist() {
 
   const handleLoadMore = async () => {
     setLoading(true);
-    let songs: Song[] = [];
+    const songs: Song[] = [];
     for (let index = 0; index < 10; index++) {
       const nextSong = await getPlaylistSong(player.nextPlaylistId);
       const songExists =

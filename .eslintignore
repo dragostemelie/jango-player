@@ -1,0 +1,7 @@
+.expo
+.expo-shared
+builds
+node_modules
+
+babel.config.js
+App.js

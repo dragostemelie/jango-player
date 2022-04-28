@@ -7,6 +7,6 @@ export const JangoApi = create({
 });
 
 export const getPlaylistSong = async (playlist: number) => {
-  const response = await JangoApi.get<Song, any>(`/stations/${playlist}/play`);
+  const response = await JangoApi.get<Song>(`/stations/${playlist}/play`);
   if (response.ok) return response.data;
 };

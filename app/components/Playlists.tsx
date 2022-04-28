@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { PlaylistItem } from "types";
 import { RootStackParamList } from "navigation/PlaylistNavigation";
-import { selectFavorites, selectPlayer, selectPlaylists } from "store/store";
+import { selectPlayer, selectPlaylists } from "store/store";
 import { setCompact, setNextPlaylist } from "store/playerSlice";
 import { useAppDispatch, useAppSelector } from "store/hooks";
 import PlaylistCard from "./PlaylistCard";
@@ -17,7 +17,6 @@ export default function Playlists() {
   const navigation = useNavigation<NavigationProp>();
   const player = useAppSelector(selectPlayer);
   const playlists = useAppSelector(selectPlaylists);
-  const favorites = useAppSelector(selectFavorites);
 
   const handleSelectPlaylist = (playlist: PlaylistItem) => {
     if (playlist.id === player.currentPlaylistId) {

@@ -11,17 +11,11 @@ import { useNavigation } from "@react-navigation/native";
 
 import { colors } from "config/styles";
 import { RootStackParamList } from "navigation/PlaylistNavigation";
-import {
-  playSong,
-  setCompact,
-  setNextPlaylist,
-  setPlaylist,
-} from "store/playerSlice";
-import { PlaylistItem, Song } from "types";
+import { playSong, setCompact, setNextPlaylist } from "store/playerSlice";
+import { Song } from "types";
 import { useAppDispatch, useAppSelector } from "store/hooks";
 import {
   selectFavorites,
-  selectNextPlaylist,
   selectPlayer,
   selectPlaylist,
   selectPlaylists,
@@ -86,10 +80,12 @@ export default function Player() {
       const currentSong = state.player.currentSong;
       const playlist =
         player.currentPlaylistId === 100
-          ? useAppSelector(selectFavorites)
-          : useAppSelector(selectNextPlaylist).playlist;
+          ? state.favorites
+          : (state.playlists.find(
+              (list) => list.id === state.player.currentPlaylistId
+            )?.playlist as Song[]);
 
-      if (currentSong < playlist?.length - 1) {
+      if (currentSong < playlist.length - 1) {
         dispatch(playSong(currentSong + 1));
       } else {
         dispatch(playSong(0));
@@ -163,7 +159,12 @@ export default function Player() {
     if (player.compact) {
       const currentPlaylist = playlists.find(
         (list) => list.id === player.currentPlaylistId
-      ) as PlaylistItem;
+      ) || {
+        id: 100,
+        name: "My favorite songs",
+        playlist: favorites,
+      };
+
       dispatch(setNextPlaylist(currentPlaylist));
       dispatch(setCompact(false));
       navigation.navigate("Playlist");
