@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "expo start --android --dev-client",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.json",
-    "build-dev-env": " eas build --profile=development --platform=android",
-    "build-android": "eas build -p android --profile preview"
+    "build-dev-android": " eas build --profile=development --platform=android",
+    "build-dev-ios": " eas build --profile=development --platform=ios",
+    "build-android": "eas build -p android --profile preview",
+    "build-ios": "eas build -p ios --profile preview"
   },
   "dependencies": {
     "@expo/vector-icons": "^12.0.5",
