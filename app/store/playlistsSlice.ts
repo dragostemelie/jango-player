@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import _ from "lodash";
 
 import { PlaylistItem, Song } from "types";
 
@@ -24,10 +25,13 @@ const playlistSlice = createSlice({
       const playlistIndex = state.findIndex(
         (playlist) => playlist.id === action.payload.id
       );
-      state[playlistIndex].playlist = [
-        ...state[playlistIndex].playlist,
-        ...action.payload.songs,
-      ];
+      if (playlistIndex !== -1) {
+        const songs = _.uniqBy(
+          [...state[playlistIndex].playlist, ...action.payload.songs],
+          "song_id"
+        );
+        state[playlistIndex].playlist = songs;
+      }
       return state;
     },
     clearPlaylist: (state, action: PayloadAction<{ id: number }>) => {

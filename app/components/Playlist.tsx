@@ -1,27 +1,40 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FlatList, ViewToken } from "react-native";
 
-import { getPlaylistSong } from "api/jango";
-import { playSong, setCompact, setPlaylist } from "store/playerSlice";
-import { selectFavorites, selectNextPlaylist, selectPlayer } from "store/store";
+import { getPlaylistSongs } from "api/jango";
+import {
+  playSong,
+  setCompact,
+  setNextPlaylist,
+  setPlaylist,
+} from "store/playerSlice";
+import {
+  selectFavorites,
+  selectNextPlaylist,
+  selectNextPlaylistSongs,
+  selectPlayer,
+} from "store/store";
 import { Song } from "types";
 import { toggleFavorite } from "store/favoritesSlice";
 import { updatePlaylist } from "store/playlistsSlice";
 import { useAppDispatch, useAppSelector } from "store/hooks";
 import LoadMore from "components/LoadMores";
 import SongCard from "components/SongCard";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "navigation/PlaylistNavigation";
+import { useNavigation } from "@react-navigation/native";
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Artist">;
 
 export default function Playlist() {
   const [songsInView, setSongsInView] = useState<(number | null)[]>([]);
   const [loading, setLoading] = useState(false);
 
   const player = useAppSelector(selectPlayer);
-  const playlist =
-    player.nextPlaylistId === 100
-      ? useAppSelector(selectFavorites)
-      : useAppSelector(selectNextPlaylist).playlist;
+  const playlist = useAppSelector(selectNextPlaylistSongs);
   const favorites = useAppSelector(selectFavorites);
   const nextPlaylist = useAppSelector(selectNextPlaylist);
+  const navigation = useNavigation<NavigationProp>();
   const dispatch = useAppDispatch();
 
   const flatList = useRef<FlatList>(null);
@@ -33,18 +46,7 @@ export default function Playlist() {
 
   const handleLoadMore = async () => {
     setLoading(true);
-    const songs: Song[] = [];
-    for (let index = 0; index < 10; index++) {
-      const nextSong = await getPlaylistSong(player.nextPlaylistId);
-      const songExists =
-        songs.some((song) => song.song_id === nextSong?.song_id) ||
-        playlist.some((song) => song.song_id === nextSong?.song_id);
-      if (nextSong && !songExists) {
-        const { album, artist, album_art, station, song, song_id, url } =
-          nextSong;
-        songs.push({ album, artist, album_art, station, song, song_id, url });
-      }
-    }
+    const songs = await getPlaylistSongs(player.nextPlaylistId);
     dispatch(updatePlaylist({ id: player.nextPlaylistId, songs }));
     setLoading(false);
   };
@@ -66,6 +68,22 @@ export default function Playlist() {
         index: Math.max(player.currentSong - 1, 0),
         animated: true,
       });
+    }
+  };
+
+  const handleLoadSongsFromArtist = async (
+    artist_station_id: number,
+    artist: string
+  ) => {
+    if (artist_station_id) {
+      dispatch(
+        setNextPlaylist({
+          id: artist_station_id,
+          name: artist,
+          playlist: [],
+        })
+      );
+      navigation.navigate("Artist");
     }
   };
 
@@ -114,6 +132,9 @@ export default function Playlist() {
           isSelected={
             index === player.currentSong &&
             player.nextPlaylistId === player.currentPlaylistId
+          }
+          onLoadMore={() =>
+            handleLoadSongsFromArtist(item.artist_station_id, item.artist)
           }
           onToggleFavorite={() => handleToggleFavorite(item, index)}
           onSelect={() => handleSelectSong(index)}

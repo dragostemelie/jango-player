@@ -1,6 +1,7 @@
 export type Song = {
   album: string | null;
   artist: string;
+  artist_station_id: number;
   album_art?: string;
   station: string;
   song: string;

@@ -16,6 +16,7 @@ interface ISongCard {
   image?: string;
   isFavorite?: boolean;
   isSelected?: boolean;
+  onLoadMore?: (event: GestureResponderEvent) => void;
   onSelect?: (event: GestureResponderEvent) => void;
   onToggleFavorite?: (event: GestureResponderEvent) => void;
   subtitle: string;
@@ -26,6 +27,7 @@ export default function SongCard({
   image,
   isFavorite,
   isSelected,
+  onLoadMore,
   onSelect,
   onToggleFavorite,
   subtitle,
@@ -35,26 +37,28 @@ export default function SongCard({
     <View style={[styles.container, isSelected && styles.selected]}>
       <TouchableNativeFeedback onPress={onSelect}>
         <View style={styles.contextWrapper}>
-          <View style={styles.image}>
-            {image ? (
-              <Image
-                source={{
-                  uri: image,
-                  width: 60,
-                  height: 60,
-                }}
-                resizeMode="cover"
-                width={60}
-                height={60}
-              />
-            ) : (
-              <MaterialCommunityIcons
-                name="account-music"
-                color={colors.secondary}
-                size={36}
-              />
-            )}
-          </View>
+          <TouchableWithoutFeedback onPress={onLoadMore}>
+            <View style={styles.image}>
+              {image ? (
+                <Image
+                  source={{
+                    uri: image,
+                    width: 60,
+                    height: 60,
+                  }}
+                  resizeMode="cover"
+                  width={60}
+                  height={60}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  name="account-music"
+                  color={colors.secondary}
+                  size={36}
+                />
+              )}
+            </View>
+          </TouchableWithoutFeedback>
           <View style={styles.textWrapper}>
             <AppText>{title}</AppText>
             <AppText style={styles.subtitle}>{subtitle}</AppText>

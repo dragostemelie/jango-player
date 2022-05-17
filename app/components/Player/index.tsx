@@ -12,12 +12,12 @@ import { useNavigation } from "@react-navigation/native";
 import { colors } from "config/styles";
 import { RootStackParamList } from "navigation/PlaylistNavigation";
 import { playSong, setCompact, setNextPlaylist } from "store/playerSlice";
-import { Song } from "types";
 import { useAppDispatch, useAppSelector } from "store/hooks";
 import {
+  selectArtists,
+  selectCurrentPlaylistSongs,
   selectFavorites,
   selectPlayer,
-  selectPlaylist,
   selectPlaylists,
   store,
 } from "store/store";
@@ -36,8 +36,9 @@ export default function Player() {
   const navigation = useNavigation<NavigationProp>();
   const player = useAppSelector(selectPlayer);
   const favorites = useAppSelector(selectFavorites);
-  const playlist = useAppSelector(selectPlaylist);
+  const playlist = useAppSelector(selectCurrentPlaylistSongs);
   const playlists = useAppSelector(selectPlaylists);
+  const artists = useAppSelector(selectArtists);
   const dispatch = useAppDispatch();
   const { position, duration } = useProgress();
 
@@ -78,12 +79,6 @@ export default function Player() {
     const state = store.getState();
     if (state.player.currentSong !== -1) {
       const currentSong = state.player.currentSong;
-      const playlist =
-        player.currentPlaylistId === 100
-          ? state.favorites
-          : (state.playlists.find(
-              (list) => list.id === state.player.currentPlaylistId
-            )?.playlist as Song[]);
 
       if (currentSong < playlist.length - 1) {
         dispatch(playSong(currentSong + 1));
@@ -141,6 +136,8 @@ export default function Player() {
     await TrackPlayer.reset();
     await TrackPlayer.add(nextSong);
     await TrackPlayer.play();
+
+    setIsPlaying(true);
   };
 
   //SONG INFO
@@ -157,16 +154,37 @@ export default function Player() {
 
   const handleSongPress = () => {
     if (player.compact) {
-      const currentPlaylist = playlists.find(
+      dispatch(setCompact(false));
+
+      //normal playlist
+      let currentPlaylist = playlists.find(
         (list) => list.id === player.currentPlaylistId
-      ) || {
+      );
+      if (currentPlaylist) {
+        dispatch(setNextPlaylist(currentPlaylist));
+        navigation.navigate("Playlist");
+        return;
+      }
+
+      //artist playlist
+      currentPlaylist = artists.find(
+        (list) => list.id === player.currentPlaylistId
+      );
+
+      if (currentPlaylist) {
+        dispatch(setNextPlaylist(currentPlaylist));
+        navigation.navigate("Artist");
+        return;
+      }
+
+      //favorites
+      currentPlaylist = {
         id: 100,
         name: "My favorite songs",
         playlist: favorites,
       };
 
       dispatch(setNextPlaylist(currentPlaylist));
-      dispatch(setCompact(false));
       navigation.navigate("Playlist");
     }
   };

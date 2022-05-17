@@ -6,7 +6,11 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { PlaylistItem } from "types";
 import { RootStackParamList } from "navigation/PlaylistNavigation";
 import { selectPlayer, selectPlaylists } from "store/store";
-import { setCompact, setNextPlaylist } from "store/playerSlice";
+import {
+  setCompact,
+  setNextPlaylist,
+  setPrevPlaylist,
+} from "store/playerSlice";
 import { useAppDispatch, useAppSelector } from "store/hooks";
 import PlaylistCard from "./PlaylistCard";
 
@@ -22,6 +26,7 @@ export default function Playlists() {
     if (playlist.id === player.currentPlaylistId) {
       dispatch(setCompact(false));
     }
+    dispatch(setPrevPlaylist(playlist.id));
     dispatch(setNextPlaylist(playlist));
     navigation.navigate("Playlist");
   };

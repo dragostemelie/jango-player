@@ -1,8 +1,14 @@
-import React from 'react';
-import { StatusBar, StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from "react";
+import {
+  StatusBar,
+  StyleProp,
+  StyleSheet,
+  ViewProps,
+  ViewStyle,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { colors } from 'config/styles';
+import { colors } from "config/styles";
 
 interface IAppScreen extends ViewProps {
   style?: StyleProp<ViewStyle>;

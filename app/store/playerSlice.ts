@@ -3,11 +3,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { PlaylistItem } from "types";
 
 const initialPlayerState = {
-  currentSong: -1,
+  compact: false,
   currentPlaylistId: 0,
+  currentSong: -1,
   nextPlaylistId: 0,
   nextPlaylistName: "",
-  compact: false,
+  prevPlaylistId: 0,
 };
 
 const playerSlice = createSlice({
@@ -21,6 +22,10 @@ const playerSlice = createSlice({
     setPlaylist: (state, action: PayloadAction<PlaylistItem>) => {
       state.currentPlaylistId = action.payload.id;
       state.nextPlaylistName = action.payload.name;
+      return state;
+    },
+    setPrevPlaylist: (state, action: PayloadAction<number>) => {
+      state.prevPlaylistId = action.payload;
       return state;
     },
     setNextPlaylist: (state, action: PayloadAction<PlaylistItem>) => {
@@ -42,10 +47,11 @@ const playerSlice = createSlice({
 
 export const {
   playSong,
-  setFavorites,
   setCompact,
-  setPlaylist,
+  setFavorites,
   setNextPlaylist,
+  setPlaylist,
+  setPrevPlaylist,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
